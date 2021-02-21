@@ -1,0 +1,10 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"openscad.launchPath": "C:\\Program Files (x86)\\OpenSCAD\\openscad.exe"
+	}
+}

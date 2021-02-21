@@ -1,0 +1,140 @@
+#include <FastLED.h>
+#define LED_PIN     7
+#define NUM_LEDS    248
+#define LED_COL_MAX  255
+CRGB leds[NUM_LEDS];
+
+void setup();
+void ClearLeds();
+void Show1();
+void Show2();
+void Show3();
+void Show4();
+void Show5();
+
+int LedBounds(int);
+void setup()
+{
+	FastLED.addLeds<WS2812, LED_PIN, GRB>(leds, NUM_LEDS);
+}
+int LedBounds(int LedValue)
+{
+	if(LedValue < 0) 
+	{
+		return NUM_LEDS + LedValue;
+	}
+	if(LedValue > (NUM_LEDS-1) )
+	{
+		 return 0+ (LedValue - NUM_LEDS);
+	}
+	return LedValue;
+}
+void ClearLeds()
+{
+	for(int I=0;I<NUM_LEDS;I++)
+	{
+		leds[I]=CRGB(0,0,0);
+	}
+}
+
+void Show1()
+{
+	for (int Col=0;Col<=LED_COL_MAX;Col+=(LED_COL_MAX/10)) 
+	{ 
+		for (int i = 0; i <= NUM_LEDS-1; i++) 
+		{
+    			leds[i] = CRGB ( 0, LED_COL_MAX-Col, 0);
+    			FastLED.show();
+    			delay(5);
+	 	}
+  		for (int i = NUM_LEDS-1; i >= 0; i--) 
+		{
+		    	leds[i] = CRGB ( LED_COL_MAX-Col, Col,0);
+    			FastLED.show();
+    			delay(5);
+  		}
+	}
+	ClearLeds();
+}
+void Show2()
+{
+	int TokenValue = 5;
+	int MultiVal = (NUM_LEDS / TokenValue); 
+	int Col = LED_COL_MAX;
+	//for (int Col=0;Col<=LED_COL_MAX;Col+=(LED_COL_MAX/2)) 
+	//{ 
+		//ClearLeds();
+		for (int i = 0; i <= NUM_LEDS-1; i++) 
+		{
+			ClearLeds();
+			int Numval =0;
+			for(int Numval=0; Numval <= TokenValue; Numval++)
+			{
+	//			leds[LedBounds(i)] = CRGB(0,255,0);
+
+
+
+				//leds[LedBounds(i+(MultiVal*Numval)+1)] = CRGB(0,0,0);
+				leds[LedBounds(i+(MultiVal*Numval))] = CRGB(0,Col,0);
+				leds[LedBounds(i+(MultiVal*Numval)-1)] = CRGB(random(LED_COL_MAX),random(LED_COL_MAX),random(LED_COL_MAX));
+				leds[LedBounds(i+(MultiVal*Numval)-2)] = CRGB(random(LED_COL_MAX),random(LED_COL_MAX),random(LED_COL_MAX));
+				//UwU			//UwU
+			}
+			FastLED.show();
+    			delay(10);
+  		}
+	//}
+
+	ClearLeds();
+	//delay(10);
+}
+
+void Show3()
+{
+	for(int UpperLimit =3; UpperLimit < NUM_LEDS-2; UpperLimit++)
+	{
+		for(int I=3; I <= UpperLimit; I++)
+		{
+			leds[LedBounds(I)] = CRGB(0,LED_COL_MAX,0);
+			leds[LedBounds(I-1)] = CRGB(LED_COL_MAX,LED_COL_MAX, LED_COL_MAX);
+			leds[LedBounds(I-2)] = CRGB(LED_COL_MAX,LED_COL_MAX, LED_COL_MAX);
+			leds[LedBounds(I-3)] = CRGB(0,0,0);
+
+			FastLED.show();
+			//delay(NUM_LEDS/UpperLimit);
+		}
+		leds[UpperLimit] = CRGB(LED_COL_MAX,0,0);
+		FastLED.show();
+	}
+}
+void Show4()
+{
+ for (int i =0; i<=1500; i++)
+   {
+   	int Target=random(NUM_LEDS);
+	//int Value=random(LED_COL_MAX);
+	leds[Target] = CRGB(random(LED_COL_MAX),random(LED_COL_MAX),random(LED_COL_MAX));
+
+ 	//Target=random(NUM_LEDS);
+ 	//Value=random(LED_COL_MAX);
+	//leds[Target] = CRGB(LED_COL_MAX,Value,0);
+
+// 	Target=random(NUM_LEDS);
+ //	Value=random(LED_COL_MAX);
+//	leds[Target] = CRGB(0,LED_COL_MAX,Value);
+	
+	FastLED.show();
+	delay(5);
+   }
+}
+
+void loop() 
+{
+//	Show1();
+	Show2();
+//	Show3();
+//	Show4();
+//	Show2();
+//	Show1();
+}
+
