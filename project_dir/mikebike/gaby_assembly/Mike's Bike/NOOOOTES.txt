@@ -1,0 +1,48 @@
+how many batteries fit inside? max +-116 -- with screws +-104 do they have to be on a grid or he will make custom connection?
+13:24 09/03/2021 batteries currently 105
+
+
+Printed by ASTRAL_3D
+https://www.fontzillion.com/fonts/cannot-into-space-fonts/trueno
+
+!! make astral 3d findable on google search
+-upload more things to thingieverse
+Astral3D -- thingieverse appears on 3rd page 
+@Astral_3d -- twitter appears on google search (duck won't find any twitter stuff)
+Astralship 3D -- gives general twitter and fb 
+@astralship -- fb, insta, astalship.org
+
+what's this youtube channel? Deleuze TLT
+
+
+holes to be smaller ~0.5mm tha n colins and longer dips behind them
+
+i have suspicion that  his screws are kind short 
+
+the nose can be a bit more high
+
+the box has to be 
+*cut corners
+*wide as possible all the way up to the peddles
+*hole has to be round
+
+he wants to put cables on the side and have cable comming in through the hole and connecting with them inside on the side ... 
+
+the triangle has to have cable hole at the top back right corner
+
+1cm by 1cm
+hole 0.5cm by 3cm
+
+
+13:57 04/03/2021
+the following changes have been made to the triangle:
+
+1.the nose lifted by another 2mm it is now 4mm wider than the test print
+2.hole for the cable 2cm  diameter
+3.screw holes added 4mm diameter inside
+4.lip around the connecting edge 5mm length
+
+17:04 09/03/2021
+controller box made using the photoscan:
+dimensions cm : 5.55 x 11.2 x 23.3
+
