@@ -4,6 +4,17 @@
 #default nixpkgs
 { pkgs ? import <nixpkgs> {} }:
 
+let
+baseconfig = { allowUnfree = true; };
+unstableTarball =
+  fetchTarball
+    https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz;
+unstable = import unstableTarball
+{
+  config = baseconfig;
+};
+in
+
 # Generate Shell
 pkgs.mkShell
 {
@@ -13,16 +24,22 @@ pkgs.mkShell
   pkgs.python37
   pkgs.python37Packages.cadquery
   #CQ-editor for native rendering of CadQuery Models
-  pkgs.cq-editor
+  unstable.cq-editor
   # FastSTL viewer to view resulting STL files
   pkgs.fstl
   # Inkscape for the inkview package (fast SVG viewer)
   pkgs.inkscape
   # atom and vim for effective code editing
   pkgs.atom pkgs.vim
+  pkgs.figlet
   ];
   #Run build-task post generation (TODO: makefile)
   shellHook = ''
-     ./task.sh;
+      figlet "Shell Active:"
+      echo "starting editors"
+      atom ./
+      cq-editor ./88_assembly/casing.py&
+      echo "to begin build sequence; run -"
+      echo "./task.sh;"
   '';
 }
