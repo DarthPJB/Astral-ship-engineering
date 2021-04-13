@@ -7,9 +7,9 @@ https://www.fontzillion.com/fonts/cannot-into-space-fonts/trueno
 
 !! make astral 3d findable on google search
 -upload more things to thingieverse
-Astral3D -- thingieverse appears on 3rd page 
+Astral3D -- thingieverse appears on 3rd page
 @Astral_3d -- twitter appears on google search (duck won't find any twitter stuff)
-Astralship 3D -- gives general twitter and fb 
+Astralship 3D -- gives general twitter and fb
 @astralship -- fb, insta, astalship.org
 
 what's this youtube channel? Deleuze TLT
@@ -17,16 +17,16 @@ what's this youtube channel? Deleuze TLT
 
 holes to be smaller ~0.5mm tha n colins and longer dips behind them
 
-i have suspicion that  his screws are kind short 
+i have suspicion that  his screws are kind short
 
 the nose can be a bit more high
 
-the box has to be 
+the box has to be
 *cut corners
 *wide as possible all the way up to the peddles
 *hole has to be round
 
-he wants to put cables on the side and have cable comming in through the hole and connecting with them inside on the side ... 
+he wants to put cables on the side and have cable comming in through the hole and connecting with them inside on the side ...
 
 the triangle has to have cable hole at the top back right corner
 
@@ -45,4 +45,3 @@ the following changes have been made to the triangle:
 17:04 09/03/2021
 controller box made using the photoscan:
 dimensions cm : 5.55 x 11.2 x 23.3
-
