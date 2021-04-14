@@ -48,16 +48,15 @@ casing_geometry = casing_geometry.shell(box_wall_thickness,"arc");
 casing_top = casing_geometry.faces(">Z").workplane(-box_wall_thickness).split(keepTop=True)
 casing_bottom = casing_geometry.faces(">Z").workplane(-box_wall_thickness).split(keepTop=False,keepBottom=True);
 
-screw_placements = casing_top.faces(">Z").wires().toPending().offset2D(-screw_post_diam/2).vertices()
+screw_placements = casing_geometry.faces(">Z").wires().toPending().offset2D(-screw_post_diam/2)
 
-screw_posts  = cq.Workplane("XY");
+#screw_placements = screw_placements.vertices().circle(screw_post_diam).extrude(-10)
 
-screw_placements = screw_placements#.extrude(-box_total_width)
-
-for x in range(8):
-    if(x != 6):
-        screw_posts = screw_posts.add(screw_placements.item(x).vertices().workplane().circle(screw_post_diam).extrude(-80))
+#for x in range(8):
+#    if(x != 6):
+#        screw_posts = screw_posts.add(screw_placements.item(x).vertices().circle(screw_post_diam).extrude(-80))
 #screw_posts = screw_posts.wire()#.extrude(box_total_width)
 
 
-show_object(screw_posts)
+show_object(casing_top)
+show_object(casing_bottom)
