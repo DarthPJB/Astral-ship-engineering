@@ -27,36 +27,55 @@ points_list.append([150.52, points_list[1][1] + 127.04 ]);
 #final line not used, meets origin from last edge.
 #points_list.append([414.86, points_list[2][1] - 4.76 ]);
 
+Difference_value = box_wall_thickness + screw_post_diam/2;
+screw_placement_points = [
+(473 - Difference_value, Difference_value),
+(Difference_value + 175 ,Difference_value -2),
+(Difference_value + 78, Difference_value + 8),
+(Difference_value + 175 , Difference_value + 68),
+(Difference_value + 300, Difference_value + 126),
+(Difference_value + 300, Difference_value -2),
+(Difference_value + 400, Difference_value + 176),
+(Difference_value + 474, Difference_value + 100),
+(Difference_value + 480, Difference_value + 210)];
 
 # ---------- Generate Core Geometary
-
 perimeter = cq.Workplane("XY");
+perimeter2 = cq.Workplane("XY");
 # Generate plane containing wire-loop
 for point in points_list:
     perimeter = perimeter.polarLine(point[0],point[1]);
+    perimeter2 = perimeter2.polarLine(point[0],point[1]);
 perimeter = perimeter.close()
+perimeter2 = perimeter2.close()
 
 # shrink the wire-loop to handle tolerance and wall box_wall_thickness
 casing_edge = perimeter.edges().offset2D(-(fit_tolerance_bike + box_wall_thickness))
 # Extrude edge to make casing shape
-casing_geometry = casing_edge.extrude(box_total_width -  box_wall_thickness * 2);
+casing_geometry = casing_edge.extrude(box_total_width);
 # fillet edges to make for nice-curved ends
 casing_geometry = casing_geometry.edges("|Z").fillet(box_corner_fillet);
 # Shell the casing to make the inside hollow.
 casing_geometry = casing_geometry.shell(box_wall_thickness,"arc");
 
 casing_top = casing_geometry.faces(">Z").workplane(-box_wall_thickness).split(keepTop=True)
+casing_top =  casing_top.faces(">Z").workplane().pushPoints(screw_placement_points);
+casing_top = casing_top.circle(screw_thread_diam/2).cutThruAll()
+
 casing_bottom = casing_geometry.faces(">Z").workplane(-box_wall_thickness).split(keepTop=False,keepBottom=True);
+casing_bottom =  casing_bottom.faces(">Z").workplane().pushPoints(screw_placement_points);
+casing_bottom = casing_bottom.circle(screw_post_diam/2).extrude(-box_total_width)
 
-screw_placements = casing_geometry.faces(">Z").wires().toPending().offset2D(-screw_post_diam/2)
 
-#screw_placements = screw_placements.vertices().circle(screw_post_diam).extrude(-10)
+screw_placements =  casing_bottom.faces(">Z").workplane().pushPoints(screw_placement_points);
+screw_placements = screw_placements.circle(screw_post_diam/2).extrude(-box_total_width)
+
 
 #for x in range(8):
 #    if(x != 6):
-#        screw_posts = screw_posts.add(screw_placements.item(x).vertices().circle(screw_post_diam).extrude(-80))
+#        screw_posts = screw_posts.add(screw_placements.item(x).vertices().circle(screw_post_diam/2).extrude(-80))
 #screw_posts = screw_posts.wire()#.extrude(box_total_width)
 
-
-show_object(casing_top)
+#show_object(screw_placements)
+#show_object(casing_top)
 show_object(casing_bottom)
