@@ -5,13 +5,14 @@ from cadquery import importers
 fit_tolerance_bike = 2;
 box_corner_fillet = 15;
 box_wall_thickness = 5;
-box_total_width = 85;
+#internal width (height of 18650 batteries)
+box_total_width = 65;
 
 screw_thread_diam = 5;
 screw_post_diam = screw_thread_diam + 3;
 screw_depth = 40;
-screw_cap_diam = 9;
-screw_cap_height = 4;
+screw_cap_diam = 9.5;
+screw_cap_height = 1;
 
 
 ## ------------- Setup Variables
@@ -61,14 +62,17 @@ casing_geometry = casing_geometry.shell(box_wall_thickness,"arc");
 casing_top = casing_geometry.faces(">Z").workplane(-box_wall_thickness).split(keepTop=True)
 casing_top =  casing_top.faces(">Z").workplane().pushPoints(screw_placement_points);
 casing_top = casing_top.circle(screw_thread_diam/2).cutThruAll()
+casing_top =  casing_top.faces(">Z").workplane().pushPoints(screw_placement_points);
+casing_top = casing_top.circle(screw_cap_diam/2).cutBlind(-screw_cap_height)
 
 casing_bottom = casing_geometry.faces(">Z").workplane(-box_wall_thickness).split(keepTop=False,keepBottom=True);
-casing_bottom =  casing_bottom.faces(">Z").workplane().pushPoints(screw_placement_points);
+casing_bottom = casing_bottom.faces(">Z").workplane().pushPoints(screw_placement_points);
 casing_bottom = casing_bottom.circle(screw_post_diam/2).extrude(-box_total_width)
-
+casing_bottom = casing_bottom.faces(">Z").workplane().pushPoints(screw_placement_points);
+casing_bottom = casing_bottom.circle(screw_thread_diam/2).cutBlind(-screw_depth)
 
 screw_placements =  casing_bottom.faces(">Z").workplane().pushPoints(screw_placement_points);
-screw_placements = screw_placements.circle(screw_post_diam/2).extrude(-box_total_width)
+screw_placements = screw_placements.circle(screw_post_diam/2)
 
 
 #for x in range(8):
@@ -77,5 +81,5 @@ screw_placements = screw_placements.circle(screw_post_diam/2).extrude(-box_total
 #screw_posts = screw_posts.wire()#.extrude(box_total_width)
 
 #show_object(screw_placements)
-#show_object(casing_top)
+show_object(casing_top)
 show_object(casing_bottom)
