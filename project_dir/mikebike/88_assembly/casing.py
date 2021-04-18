@@ -28,17 +28,45 @@ points_list.append([150.52, points_list[1][1] + 127.04 ]);
 #final line not used, meets origin from last edge.
 #points_list.append([414.86, points_list[2][1] - 4.76 ]);
 
-Difference_value = box_wall_thickness + screw_post_diam/2;
+edge_difference_x = 60;
+
+rising_x_offset = 54;
+rising_y_offset = 25.25;
+
+falling_x_offset = 8;
+falling_y_offset = 60;
+
 screw_placement_points = [
-(473 - Difference_value, Difference_value),
-(Difference_value + 175 ,Difference_value -2),
-(Difference_value + 78, Difference_value + 8),
-(Difference_value + 175 , Difference_value + 68),
-(Difference_value + 300, Difference_value + 126),
-(Difference_value + 300, Difference_value -2),
-(Difference_value + 400, Difference_value + 176),
-(Difference_value + 474, Difference_value + 100),
-(Difference_value + 480, Difference_value + 210)];
+(455, 8), # Top Left Corner
+(93, 34), # Top Right corner
+(495, 205), # Bottom Left Corner
+
+#Holes at 60mm intervals along top-edge
+(400, 8),
+(340, 8),
+(280, 8),
+(220, 8),
+(160, 8),
+(100, 8),
+
+#Holes along diagnal edges
+(93 + rising_x_offset , 34 + rising_y_offset),
+(93 + rising_x_offset * 2 , 34 + rising_y_offset * 2),
+(93 + rising_x_offset * 3, 34 + rising_y_offset * 3),
+(93 + rising_x_offset * 4 , 34 + rising_y_offset * 4),
+(93 + rising_x_offset * 5, 34 + rising_y_offset * 5),
+
+#Second diagnal edge requires some tweaking.
+(93 +  rising_x_offset * 6 , 34 + 2 + rising_y_offset * 6),
+(93 +  rising_x_offset * 7 , 34 + 8 + rising_y_offset * 7),
+
+#rising edge has a slight angle
+(495 - falling_x_offset , 205 - falling_y_offset),
+(495 - falling_x_offset*2 , 205 - falling_y_offset*2),
+(495 - falling_x_offset*3 , 205 - falling_y_offset*3),
+#(495 - falling_x_offset*4 , 205 - falling_y_offset*4),
+
+];
 
 # ---------- Generate Core Geometary
 perimeter = cq.Workplane("XY");
