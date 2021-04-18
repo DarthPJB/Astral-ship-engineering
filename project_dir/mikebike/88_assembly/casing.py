@@ -18,6 +18,12 @@ screw_depth = 40;
 screw_cap_diam = 9.1;
 screw_cap_height = 1;
 
+Cable_hole_diam = 20;
+Cable_hole_position_X = 500
+Cable_hole_position_Y = box_total_width/2;
+Cable_hole_position_Z = 230;
+Cable_hole_angle = 45;
+
 
 ## ------------- Setup Variables -----------------------------------------------    ---                     Point Lists
 
@@ -93,6 +99,13 @@ casing_geometry = casing_geometry.shell(box_wall_thickness,"arc");
 casing_top = casing_geometry.faces(">Z").workplane(-box_wall_thickness).split(keepTop=True)
 casing_bottom = casing_geometry.faces(">Z").workplane(-box_wall_thickness).split(keepTop=False,keepBottom=True);
 
+casing_bottom_2 = cq.Workplane("YZ").transformed(
+    offset=cq.Vector(Cable_hole_position_Z,Cable_hole_position_Y,Cable_hole_position_X),
+    rotate=cq.Vector(0,Cable_hole_angle,0));
+casing_bottom_2 = casing_bottom_2.circle(Cable_hole_diam/2).extrude(-50)
+
+
+
 # In the top plate, cut holes for the screws to enter the casing through.           ---                     Top lid screw placement
 casing_top =  casing_top.faces(">Z").workplane().pushPoints(screw_placement_points).circle(screw_thread_diam/2).cutThruAll()
 # In the top plate, sink holes for the screw-heads to be recessed slighty.
@@ -104,6 +117,9 @@ casing_bottom = casing_bottom.faces(">Z").workplane().pushPoints(screw_placement
 casing_bottom = casing_bottom.faces(">Z").workplane().pushPoints(screw_placement_points).circle(screw_thread_diam/2).cutBlind(-screw_depth)
 
 
+
+
 ## Render resulting geometary
 #show_object(casing_top)
 show_object(casing_bottom)
+show_object(casing_bottom_2)
