@@ -24,6 +24,12 @@ Cable_hole_position_Y = box_total_width/2;
 Cable_hole_position_Z = 230;
 Cable_hole_angle = 50;
 
+cut_text_position_x = 310;
+cut_text_position_y = 120;
+cut_text_angle = 24;
+cut_text = "Created By @Astral_3D";
+cut_font="Trueno Bold";
+cut_fontPath="truenobd.otf"
 ## ------------- Setup Variables -----------------------------------------------    ---                     Point Lists
 
 # generate points list from the angle and length of the constraining edges (TODO: should import from svg)
@@ -119,7 +125,22 @@ casing_cable_cut = casing_cable_cut.circle(Cable_hole_diam/2).extrude(-50)
 # Subtract the resulting geometary.
 casing_bottom = casing_bottom.cut(casing_cable_cut);
 
+# place workplane in correct location
+text = cq.Workplane("XY").transformed(
+    offset=cq.Vector(cut_text_position_x,cut_text_position_y,box_total_width + box_wall_thickness/2),
+    rotate=cq.Vector(0,0,180 + cut_text_angle));
+#generate text for the lid
+text = text.text(cut_text, 10, box_wall_thickness/2, font=cut_font, fontPath=cut_fontPath)
+# place workplane in correct location
+text2 = cq.Workplane("XY").transformed(
+    offset=cq.Vector(cut_text_position_x,cut_text_position_y, -box_wall_thickness / 2),
+    rotate=cq.Vector(180,0, -cut_text_angle));
+#generate text for the base
+text2 = text2.text(cut_text, 10, box_wall_thickness/2, font=cut_font, fontPath=cut_fontPath)
 
+casing_top = casing_top.cut(text);
+casing_bottom = casing_bottom.cut(text2);
 ## Render resulting geometary
-#show_object(casing_top)
 show_object(casing_bottom)
+show_object(casing_top)
+#show_object(text2)
