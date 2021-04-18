@@ -22,8 +22,7 @@ Cable_hole_diam = 20;
 Cable_hole_position_X = 500
 Cable_hole_position_Y = box_total_width/2;
 Cable_hole_position_Z = 230;
-Cable_hole_angle = 45;
-
+Cable_hole_angle = 50;
 
 ## ------------- Setup Variables -----------------------------------------------    ---                     Point Lists
 
@@ -99,12 +98,6 @@ casing_geometry = casing_geometry.shell(box_wall_thickness,"arc");
 casing_top = casing_geometry.faces(">Z").workplane(-box_wall_thickness).split(keepTop=True)
 casing_bottom = casing_geometry.faces(">Z").workplane(-box_wall_thickness).split(keepTop=False,keepBottom=True);
 
-casing_bottom_2 = cq.Workplane("YZ").transformed(
-    offset=cq.Vector(Cable_hole_position_Z,Cable_hole_position_Y,Cable_hole_position_X),
-    rotate=cq.Vector(0,Cable_hole_angle,0));
-casing_bottom_2 = casing_bottom_2.circle(Cable_hole_diam/2).extrude(-50)
-
-
 
 # In the top plate, cut holes for the screws to enter the casing through.           ---                     Top lid screw placement
 casing_top =  casing_top.faces(">Z").workplane().pushPoints(screw_placement_points).circle(screw_thread_diam/2).cutThruAll()
@@ -116,10 +109,17 @@ casing_bottom = casing_bottom.faces(">Z").workplane().pushPoints(screw_placement
 # then remove the screw-holes from the posts
 casing_bottom = casing_bottom.faces(">Z").workplane().pushPoints(screw_placement_points).circle(screw_thread_diam/2).cutBlind(-screw_depth)
 
+# Position a workplane above the edges that need cutting
+casing_cable_cut = cq.Workplane("YZ").transformed(
+    offset=cq.Vector(Cable_hole_position_Z,Cable_hole_position_Y,Cable_hole_position_X),
+    rotate=cq.Vector(0,Cable_hole_angle,0));
+# Create a cylinder to represent the material to be removed by the cut.
+casing_cable_cut = casing_cable_cut.circle(Cable_hole_diam/2).extrude(-50)
 
+# Subtract the resulting geometary.
+casing_bottom = casing_bottom.cut(casing_cable_cut);
 
 
 ## Render resulting geometary
 #show_object(casing_top)
 show_object(casing_bottom)
-show_object(casing_bottom_2)
