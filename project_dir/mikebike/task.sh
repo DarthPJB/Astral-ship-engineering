@@ -1,3 +1,4 @@
+#!/bin/sh
 python ./88_assembly/full_model_generation.py
 if (( $? ))
   then figlet "FAILED" ;

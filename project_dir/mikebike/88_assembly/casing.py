@@ -123,7 +123,7 @@ casing_cable_cut = cq.Workplane("YZ").transformed(
 casing_cable_cut = casing_cable_cut.circle(Cable_hole_diam/2).extrude(-50)
 
 # Subtract the resulting geometary.
-casing_bottom = casing_bottom.cut(casing_cable_cut);
+#casing_bottom = casing_bottom.cut(casing_cable_cut);
 
 # place workplane in correct location
 text = cq.Workplane("XY").transformed(
