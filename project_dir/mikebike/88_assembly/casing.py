@@ -35,7 +35,7 @@ cut_fontPath="truenobd.otf"
 # generate points list from the angle and length of the constraining edges (TODO: should import from svg)
 points_list = [];
 #first edge from 0,0 running along the top of the box.
-points_list.append([475, 0]);
+points_list.append([463.6, 0]);
 # second edge moving down the back of the bike-frame
 points_list.append([250, 82.48]);
 #edge up towards meeting the triangle
