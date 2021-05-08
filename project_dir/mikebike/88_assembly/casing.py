@@ -44,15 +44,16 @@ points_list.append([150.52, points_list[1][1] + 127.04 ]);
 
 # define per-step differences for screw-hole placement (TODO: generate these according to generative geometary)
 edge_difference_x = 60;
-rising_x_offset = 54;
-rising_y_offset = 25.25;
-falling_x_offset = 8;
-falling_y_offset = 60;
+rising_offset = [55, 26.5];
+rising_offset2 = [-10,-0.5]
+falling_offset = [8,60];
+FirstRisingScrew = [93,34];
+FirstFallingScrew = [483,205];
 
 screw_placement_points = [
-    (455, 8), # Top Left Corner
+    (450, 8), # Top Left Corner
     (93, 34), # Top Right corner
-    (495, 205), # Bottom Left Corner
+    (484, 205), # Bottom Left Corner
 
     #Holes at 60mm intervals along top-edge
     (400, 8),
@@ -63,20 +64,20 @@ screw_placement_points = [
     (100, 8),
 
     #Holes along diagnal edges
-    (93 + rising_x_offset , 34 + rising_y_offset),
-    (93 + rising_x_offset * 2 , 34 + rising_y_offset * 2),
-    (93 + rising_x_offset * 3, 34 + rising_y_offset * 3),
-    (93 + rising_x_offset * 4 , 34 + rising_y_offset * 4),
-    (93 + rising_x_offset * 5, 34 + rising_y_offset * 5),
+    (FirstRisingScrew[0] + rising_offset[0] , FirstRisingScrew[1] + rising_offset[1]),
+    (FirstRisingScrew[0] + rising_offset[0] * 2 , FirstRisingScrew[1] + rising_offset[1] * 2),
+    (FirstRisingScrew[0] + rising_offset[0] * 3, FirstRisingScrew[1] + rising_offset[1] * 3),
+    (FirstRisingScrew[0] + rising_offset[0] * 4 , FirstRisingScrew[1] + rising_offset[1] * 4),
+    (FirstRisingScrew[0] + rising_offset[0] * 5, FirstRisingScrew[1] + rising_offset[1] * 5),
 
     #Second diagnal edge requires some tweaking.
-    (93 +  rising_x_offset * 6 , 34 + 2 + rising_y_offset * 6),
-    (93 +  rising_x_offset * 7 , 34 + 8 + rising_y_offset * 7),
+    (FirstRisingScrew[0] + rising_offset2[0] + rising_offset[0] * 6 , FirstRisingScrew[1]  + rising_offset2[1] + rising_offset[1] * 6),
+    (FirstRisingScrew[0] + rising_offset2[0] * 2 + rising_offset[0] * 7 , FirstRisingScrew[1]  + rising_offset2[1] * 2 +rising_offset[1] * 7),
 
     #rising edge has a slight angle
-    (495 - falling_x_offset , 205 - falling_y_offset),
-    (495 - falling_x_offset*2 , 205 - falling_y_offset*2),
-    (495 - falling_x_offset*3 , 205 - falling_y_offset*3),
+    (FirstFallingScrew[0] - falling_offset[0] , FirstFallingScrew[1] - falling_offset[1]),
+    (FirstFallingScrew[0] - falling_offset[0]*2 , FirstFallingScrew[1] - falling_offset[1]*2),
+    (FirstFallingScrew[0] - falling_offset[0]*3 , FirstFallingScrew[1] - falling_offset[1]*3),
 ];
 
 # ---------- Generate Core Geometary -------------------------------------------    ---                     MESH GENERATION
