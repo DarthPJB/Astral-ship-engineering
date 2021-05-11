@@ -125,6 +125,15 @@ casing_cable_cut = casing_cable_cut.circle(Cable_hole_diam/2).extrude(-50)
 
 # Subtract the resulting geometary.
 #casing_bottom = casing_bottom.cut(casing_cable_cut);
+s = cq.Workplane("XY")
+sPnts = [
+    (300.0, 70.0),
+    (275.0, 100),
+    (300.0, 150),
+    (300.0, 200)
+]
+r = s.center(0,0).lineTo(300.0, 0).spline(sPnts,includeCurrent=True).lineTo(0,200).close()
+result = r.extrude(1)
 
 # place workplane in correct location
 text = cq.Workplane("XY").transformed(
@@ -142,6 +151,6 @@ text2 = text2.text(cut_text, 10, box_wall_thickness/2, font=cut_font, fontPath=c
 casing_top = casing_top.cut(text);
 casing_bottom = casing_bottom.cut(text2);
 ## Render resulting geometary
-show_object(casing_bottom)
+#show_object(casing_bottom)
 show_object(casing_top)
-#show_object(text2)
+show_object(result)
