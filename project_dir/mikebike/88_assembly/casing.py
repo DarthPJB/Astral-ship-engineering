@@ -3,7 +3,6 @@
 # This is version 3.0 of the battery-box design, a third prototype based heavily
 # on the amazing work of our team!
 
-
 import cadquery as cq
 from cadquery import exporters
 from cadquery import importers
@@ -11,28 +10,31 @@ from cadquery import importers
 
 
 ## ----------- Core variables --------------------------------------------------    ---                     Variable initialisation
-fit_tolerance_bike = 2;
-box_corner_fillet = 15;
-box_wall_thickness = 5;
+fit_tolerance_bike = 2; #offset from bike-frame to allow human-fitting
+fit_tolerance_casing = 0.1; # offset between meeting-faces to allow for print-error
+box_corner_fillet = 15; # size of edge-ring filleting
+box_wall_thickness = 5; # thickness of casing walls
 
 #internal width (height of 18650 batteries)
-box_total_width = 70;
+box_total_width = 70; # Internal height of the box.
 
-screw_thread_diam = 5;
-screw_post_diam = screw_thread_diam + 3;
-screw_depth = 40;
-screw_cap_diam = 9.1;
-screw_cap_height = 1;
+screw_thread_diam = 5; # Screw Thread diameter for connecting face-plate to casing
+screw_post_diam = screw_thread_diam + box_wall_thickness; # screw-post-width pre-calulation
 
-Cable_hole_diam = 20;
-Cable_hole_position_X = 500
+screw_depth = 40;   # length of screw-fitting into the box itself
+screw_cap_diam = 9.1; # Size of screw-cap for recessed fitting
+screw_cap_height = 1; # Number of milimemeters to recess the screw-caps
+
+Cable_hole_diam = 20; # Size of the cable-hole (20mm is a good fit for cable-plugs)
+Cable_hole_position_X = 500;
 Cable_hole_position_Y = box_total_width/2;
 Cable_hole_position_Z = 230;
 Cable_hole_angle = 50;
 
-cut_text_position_x = 310;
-cut_text_position_y = 120;
+cut_text_position_x = 180;
+cut_text_position_y = 60;
 cut_text_angle = 24;
+# Text to be placed on the box - note custom font use, should be in CQ's working path
 cut_text = "Created By @Astral_3D";
 cut_font = "Trueno Bold";
 cut_fontPath = "truenobd.otf"
@@ -136,15 +138,26 @@ casing_cable_cut = casing_cable_cut.circle(Cable_hole_diam/2).extrude(-50)
 
 # Subtract the resulting geometary.
 #casing_bottom = casing_bottom.cut(casing_cable_cut);
-Bezier_Plane = cq.Workplane("XY").center(box_wall_thickness,0);
-Cut_Loop = Bezier_Plane.center(0,0).lineTo(300.0, 0).spline(Bezier_Cut_Points,includeCurrent=True).lineTo(0,200).close()
-result = Cut_Loop.extrude((box_wall_thickness+0.1)/2);
-Bezier_Plane2 = cq.Workplane("XY").workplane(offset= (box_wall_thickness+0.1)/2)
-Cut_Loop2 = Bezier_Plane2.center(0,0).lineTo(300.0, 0).spline(Bezier_Cut_Points,includeCurrent=True).lineTo(0,200).close()
-result2 = Cut_Loop2.extrude((box_wall_thickness+0.1)/2);
-data = cq.Location(result.faces("<Z"));
-log(data);
 
+# Generate the Spline-bezier cut and repepeat to creat lapping pannels              ---                     Creating lapping pannels
+Lapping_Offset = box_wall_thickness
+Double_Fit_Tolerance = fit_tolerance_casing * 2;
+lapping_Thickness = (box_wall_thickness+Double_Fit_Tolerance)/2
+
+Cut_Volume = cq.Workplane("XY").workplane(-lapping_Thickness*2).center(Lapping_Offset,0)\
+.lineTo(300.0, 0).spline(Bezier_Cut_Points,includeCurrent=True).lineTo(0,200).close()\
+.extrude(lapping_Thickness);
+
+Cut_Volume2 = cq.Workplane("XY").workplane(lapping_Thickness + box_total_width).center(Lapping_Offset,0)\
+.lineTo(300.0, 0).spline(Bezier_Cut_Points,includeCurrent=True).lineTo(0,200).close()\
+.extrude(lapping_Thickness);
+
+Cut_Volume3 = cq.Workplane("XY").workplane(-(lapping_Thickness + fit_tolerance_bike))\
+.lineTo(300.0, 0).spline(Bezier_Cut_Points,includeCurrent=True).lineTo(0,200).close()\
+.extrude(box_total_width + lapping_Thickness * 3 + Double_Fit_Tolerance);
+
+Cut_Volume = Cut_Volume.union(Cut_Volume3).union(Cut_Volume2);
+debug(Cut_Volume)
 # place workplane in correct location
 text = cq.Workplane("XY").transformed(
     offset=cq.Vector(cut_text_position_x,cut_text_position_y,box_total_width + box_wall_thickness/2),
@@ -161,7 +174,5 @@ text2 = text2.text(cut_text, 10, box_wall_thickness/2, font=cut_font, fontPath=c
 casing_top = casing_top.cut(text);
 casing_bottom = casing_bottom.cut(text2);
 ## Render resulting geometary
-show_object(casing_bottom, options=dict(color='pink'))
-show_object(casing_top, options=dict(color='red'))
-show_object(result, options=dict(color='blue'))
-show_object(result2, options=dict(color='cyan'))
+show_object(casing_bottom, options=dict(color='orange'))
+show_object(casing_top, options=dict(color='yellow'))
