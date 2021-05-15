@@ -1,3 +1,9 @@
+# Mike-Bike battery-box casing, by the Astral_3D Team aboard the Astral Ship, 2021-05-15
+# Expecting CQ-Editor 0.2.0 or heigher, Cadquery 2.0.0
+# This is version 3.0 of the battery-box design, a third prototype based heavily
+# on the amazing work of our team!
+
+
 import cadquery as cq
 from cadquery import exporters
 from cadquery import importers
@@ -28,8 +34,8 @@ cut_text_position_x = 310;
 cut_text_position_y = 120;
 cut_text_angle = 24;
 cut_text = "Created By @Astral_3D";
-cut_font="Trueno Bold";
-cut_fontPath="truenobd.otf"
+cut_font = "Trueno Bold";
+cut_fontPath = "truenobd.otf"
 ## ------------- Setup Variables -----------------------------------------------    ---                     Point Lists
 
 # generate points list from the angle and length of the constraining edges (TODO: should import from svg)
@@ -41,7 +47,12 @@ points_list.append([250, 82.48]);
 #edge up towards meeting the triangle
 points_list.append([150.52, points_list[1][1] + 127.04 ]);
 
-
+Bezier_Cut_Points = [
+    (300.0, 70.0),
+    (275.0, 100),
+    (300.0, 150),
+    (300.0, 200)
+]
 # define per-step differences for screw-hole placement (TODO: generate these according to generative geometary)
 edge_difference_x = 60;
 rising_offset = [55, 26.5];
@@ -116,7 +127,7 @@ casing_bottom = casing_bottom.faces(">Z").workplane().pushPoints(screw_placement
 # then remove the screw-holes from the posts
 casing_bottom = casing_bottom.faces(">Z").workplane().pushPoints(screw_placement_points).circle(screw_thread_diam/2).cutBlind(-screw_depth)
 
-# Position a workplane above the edges that need cutting
+# Position a workplane above the edges that need cutting                            ---                     Casing Cable Cut
 casing_cable_cut = cq.Workplane("YZ").transformed(
     offset=cq.Vector(Cable_hole_position_Z,Cable_hole_position_Y,Cable_hole_position_X),
     rotate=cq.Vector(0,Cable_hole_angle,0));
@@ -125,15 +136,14 @@ casing_cable_cut = casing_cable_cut.circle(Cable_hole_diam/2).extrude(-50)
 
 # Subtract the resulting geometary.
 #casing_bottom = casing_bottom.cut(casing_cable_cut);
-s = cq.Workplane("XY")
-sPnts = [
-    (300.0, 70.0),
-    (275.0, 100),
-    (300.0, 150),
-    (300.0, 200)
-]
-r = s.center(0,0).lineTo(300.0, 0).spline(sPnts,includeCurrent=True).lineTo(0,200).close()
-result = r.extrude(1)
+Bezier_Plane = cq.Workplane("XY").center(box_wall_thickness,0);
+Cut_Loop = Bezier_Plane.center(0,0).lineTo(300.0, 0).spline(Bezier_Cut_Points,includeCurrent=True).lineTo(0,200).close()
+result = Cut_Loop.extrude((box_wall_thickness+0.1)/2);
+Bezier_Plane2 = cq.Workplane("XY").workplane(offset= (box_wall_thickness+0.1)/2)
+Cut_Loop2 = Bezier_Plane2.center(0,0).lineTo(300.0, 0).spline(Bezier_Cut_Points,includeCurrent=True).lineTo(0,200).close()
+result2 = Cut_Loop2.extrude((box_wall_thickness+0.1)/2);
+data = cq.Location(result.faces("<Z"));
+log(data);
 
 # place workplane in correct location
 text = cq.Workplane("XY").transformed(
@@ -151,6 +161,7 @@ text2 = text2.text(cut_text, 10, box_wall_thickness/2, font=cut_font, fontPath=c
 casing_top = casing_top.cut(text);
 casing_bottom = casing_bottom.cut(text2);
 ## Render resulting geometary
-#show_object(casing_bottom)
-show_object(casing_top)
-show_object(result)
+show_object(casing_bottom, options=dict(color='pink'))
+show_object(casing_top, options=dict(color='red'))
+show_object(result, options=dict(color='blue'))
+show_object(result2, options=dict(color='cyan'))
