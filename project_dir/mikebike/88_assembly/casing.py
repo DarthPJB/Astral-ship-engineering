@@ -7,7 +7,7 @@ import cadquery as cq
 from cadquery import exporters
 from cadquery import importers
 
-DEBUG_MODE = True;
+DEBUG_MODE = False;
 
 ## ----------- Core variables --------------------------------------------------    ---                     Variable initialisation
 fit_tolerance_bike = 2; #offset from bike-frame to allow human-fitting
