@@ -15,6 +15,9 @@ fit_tolerance_casing = 0.1; # offset between meeting-faces to allow for print-er
 box_corner_fillet = 15; # size of edge-ring filleting
 box_wall_thickness = 5; # thickness of casing walls
 
+lid_casing_split_distance = 10;
+
+
 #Settings for Cut-GENERATION
 Maximum_Size = [600,400,100]
 
@@ -67,12 +70,12 @@ rising_offset = [55, 26.5];
 rising_offset2 = [-9.5,-0.5]
 falling_offset = [8,60];
 FirstRisingScrew = [93,34];
-FirstFallingScrew = [483,205];
+FirstFallingScrew = [482,205];
 
 screw_placement_points = [
     (450, 8), # Top Left Corner
     (93, 34), # Top Right corner
-    (484, 205), # Bottom Left Corner
+    (482, 205), # Bottom Left Corner
 
     #Holes at 60mm intervals along top-edge
     (400, 8),
@@ -181,10 +184,10 @@ casing_geometry_Right = casing_geometry.intersect(Inverse_Cut_Volume)
 
 # Split casing_geometry into top and bottom parts, this will result in four total parts.
 # (top being the thin lid, bottom being the box-casing itself)                      ---                     Casing Split
-casing_top_Left = casing_geometry_Left.faces(">Z").workplane(-box_wall_thickness).split(keepTop=True)
-casing_bottom_Left = casing_geometry_Left.faces(">Z").workplane(-box_wall_thickness).split(keepTop=False,keepBottom=True);
-casing_top_Right = casing_geometry_Right.faces(">Z").workplane(-box_wall_thickness).split(keepTop=True)
-casing_bottom_Right = casing_geometry_Right.faces(">Z").workplane(-box_wall_thickness).split(keepTop=False,keepBottom=True);
+casing_top_Left = casing_geometry_Left.faces(">Z").workplane(-(box_wall_thickness+lid_casing_split_distance)).split(keepTop=True)
+casing_bottom_Left = casing_geometry_Left.faces(">Z").workplane(-(box_wall_thickness+lid_casing_split_distance)).split(keepTop=False,keepBottom=True);
+casing_top_Right = casing_geometry_Right.faces(">Z").workplane(-(box_wall_thickness+lid_casing_split_distance)).split(keepTop=True)
+casing_bottom_Right = casing_geometry_Right.faces(">Z").workplane(-(box_wall_thickness+lid_casing_split_distance)).split(keepTop=False,keepBottom=True);
 
 ## Render resulting geometary                                                       ---                 Render Results
 show_object(casing_top_Left, name='casing_lid_left', options=dict(color='#5555ee'));
