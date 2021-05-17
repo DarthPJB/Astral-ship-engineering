@@ -10,94 +10,112 @@ from cadquery import importers
 DEBUG_MODE = False;
 
 ## ----------- Core variables --------------------------------------------------    ---                     Variable initialisation
-fit_tolerance_bike = 2; #offset from bike-frame to allow human-fitting
+
+##Tolerances
+fit_bike_excess = 2; #offset from bike-frame to allow human-fitting
 fit_tolerance_casing = 0.1; # offset between meeting-faces to allow for print-error
+fit_tolerance_doubled = fit_tolerance_casing * 2;
+
+##Casing creation settings
+box_total_width = 70; # Internal height of the box (height of 18650 batteries)
 box_corner_fillet = 15; # size of edge-ring filleting
 box_wall_thickness = 5; # thickness of casing walls
 
+##Lid creation settings
 lid_casing_split_distance = 10;
+lid_casing_split_offset = 30;
+Lid_Lapping_Offset = box_wall_thickness
+lid_lapping_Thickness = (box_wall_thickness+fit_tolerance_doubled)/2
 
-
-#Settings for Cut-GENERATION
-Maximum_Size = [600,400,100]
-
-#Settings for lapping of casing
-Lapping_Offset = box_wall_thickness
-double_Fit_Tolerance = fit_tolerance_casing * 2;
-lapping_Thickness = (box_wall_thickness+double_Fit_Tolerance)/2
-
-#internal width (height of 18650 batteries)
-box_total_width = 70; # Internal height of the box.
-
-screw_thread_diam = 5; # Screw Thread diameter for connecting face-plate to casing
-screw_post_diam = screw_thread_diam + box_wall_thickness; # screw-post-width pre-calulation
-
-screw_depth = 40;   # length of screw-fitting into the box itself
-screw_cap_diam = 9.1; # Size of screw-cap for recessed fitting
-screw_cap_height = 1; # Number of milimemeters to recess the screw-caps
-
-Cable_hole_diam = 20; # Size of the cable-hole (20mm is a good fit for cable-plugs)
-Cable_hole_position = cq.Vector(500,box_total_width/2, 230);
-Cable_hole_angle = 50;
-
-cut_text_position_x = 180;
-cut_text_position_y = 60;
-cut_text_angle = 24;
-# Text to be placed on the box - note custom font use, should be in CQ's working path
-cut_text = "Created By @Astral_3D";
-cut_font = "Trueno Bold";
-cut_fontPath = "truenobd.otf"
-## ------------- Setup Variables -----------------------------------------------    ---                     Point Lists
+## Point lists for generating geometary                                         ---                     Point Lists
 
 # generate points list from the angle and length of the constraining edges (TODO: should import from svg)
-points_list = [];
+points_list = [
 #first edge from 0,0 running along the top of the box.
-points_list.append([463.6, 0]);
+(463.6, 0),
 # second edge moving down the back of the bike-frame
-points_list.append([250, 82.48]);
+(250, 82.48),
 #edge up towards meeting the triangle
-points_list.append([150.52, points_list[1][1] + 127.04 ]);
-
-Bezier_Cut_Points = [
-    (300.0, 70.0),
-    (275.0, 100),
-    (300.0, 150),
-    (300.0, 200)
-]
-# define per-step differences for screw-hole placement                              --- TODO: generate these according to generative geometary
-edge_difference_x = 60;
-rising_offset = [55, 26.5];
-rising_offset2 = [-8.5,-1]
-falling_offset = [8,60];
+(150.52, 82.48 + 127.04)];
 
 screw_placement_points = [
     (445, 8), # Top Left Corner
     (93, 34), # Top Right corner
     (482, 205)] # Bottom Left Corner
 
-#Holes along diagnal edges
+newArray = screw_placement_points + points_list
+
+## calulate maximum enclosing area                                              ---                     Extents Calulations
+startx = 0
+starty = 0
+for x,y in newArray:
+    if x > startx: startx = x;
+    if y > starty: starty = y;
+
+Maximum_Size = [startx + (box_corner_fillet*2), starty + (box_corner_fillet*2) , box_total_width * 2];
+
+if DEBUG_MODE: log(Maximum_Size);
+Xpos = (Maximum_Size[0] / 2) + lid_casing_split_offset;
+Ypos = (Maximum_Size[1] / 4)
+Bezier_Cut_Points = [
+    (Xpos, Ypos*1),
+    (Xpos-lid_casing_split_offset, Ypos*2),
+    (Xpos, Ypos*3)
+]
+
+
+##Screw-placement and settings
+screw_placement_distance = 60;
+screw_thread_diam = 5; # Screw Thread diameter for connecting face-plate to casing
+screw_post_diam = screw_thread_diam + box_wall_thickness; # screw-post-width pre-calulation
+screw_depth = 40;   # length of screw-fitting into the box itself
+screw_cap_diam = 9.1; # Size of screw-cap for recessed fitting
+screw_cap_height = 2; # Number of milimemeters to recess the screw-caps
+# define per-step differences for screw-hole placement                              --- TODO: generate these according to generative geometary
+screw_rising_offset = [55, 26.5];
+screw_rising_difference = [-8.5,-1]
+screw_falling_offset = [8,screw_placement_distance];
+
+##Cable Hole Settings
+Cable_hole_diam = 20; # Size of the cable-hole (20mm is a good fit for cable-plugs)
+Cable_hole_position = cq.Vector((box_corner_fillet * 2) + box_wall_thickness, box_total_width/2, Maximum_Size[0]);
+Cable_hole_angle = 0;
+Cable_hole_Cut_Depth = 200;
+
+# Text to be placed on the box - note custom font use, should be in CQ's working path
+cut_text_position_x = 180;
+cut_text_position_y = 60;
+cut_text_angle = 24;
+cut_text = "Created By @Astral_3D";
+cut_text_font = "Trueno Bold";
+cut_text_fontPath = "truenobd.otf"
+
+
+
+
+#Holes along diagnal edges                                                          ---     Filling point lists with screw-placements
 for risingpoints in range(1,8):
     if risingpoints < 6:
         screw_placement_points.append((\
-        screw_placement_points[1][0] + rising_offset[0] * risingpoints ,\
-        screw_placement_points[1][1] + rising_offset[1] * risingpoints));
+        screw_placement_points[1][0] + screw_rising_offset[0] * risingpoints ,\
+        screw_placement_points[1][1] + screw_rising_offset[1] * risingpoints));
     else: #Second diagnal edge requires some tweaking.
         screw_placement_points.append((\
-        (screw_placement_points[1][0] + rising_offset[0] * risingpoints) + rising_offset2[0] * (risingpoints-5)  ,\
-        (screw_placement_points[1][1] + rising_offset[1] * risingpoints) + rising_offset2[1] * (risingpoints-5) ));
+        (screw_placement_points[1][0] + screw_rising_offset[0] * risingpoints) + screw_rising_difference[0] * (risingpoints-5)  ,\
+        (screw_placement_points[1][1] + screw_rising_offset[1] * risingpoints) + screw_rising_difference[1] * (risingpoints-5) ));
 
 #Holes at 60mm intervals along top-edge
 for top_edge_points in range(1,7):
     if top_edge_points != 6:
         screw_placement_points.append((\
-        screw_placement_points[0][0] - (edge_difference_x * top_edge_points ), screw_placement_points[0][1]));
+        screw_placement_points[0][0] - (screw_placement_distance * top_edge_points ), screw_placement_points[0][1]));
     else:
         screw_placement_points.append((\
-        screw_placement_points[0][0] - ((edge_difference_x - 2) * top_edge_points ), screw_placement_points[0][1]));
+        screw_placement_points[0][0] - ((screw_placement_distance - 2) * top_edge_points ), screw_placement_points[0][1]));
 
 for fallingpoints in range(1,4):
     screw_placement_points.append((\
-    screw_placement_points[2][0] - falling_offset[0] * fallingpoints , screw_placement_points[2][1] - falling_offset[1] * fallingpoints));
+    screw_placement_points[2][0] - screw_falling_offset[0] * fallingpoints , screw_placement_points[2][1] - screw_falling_offset[1] * fallingpoints));
 
 # ---------- Generate Core Geometary -------------------------------------------    ---                     MESH GENERATION
 
@@ -105,28 +123,28 @@ for fallingpoints in range(1,4):
 text = cq.Workplane("XY").transformed(
     offset=cq.Vector(cut_text_position_x,cut_text_position_y, box_total_width + box_wall_thickness/2),
     rotate=cq.Vector(0,0,180 + cut_text_angle))\
-.text(cut_text, 10, box_wall_thickness/2, font=cut_font, fontPath=cut_fontPath); #generate text for the lid
-# place workplane in correct location
+.text(cut_text, 10, box_wall_thickness/2, font=cut_text_font, fontPath=cut_text_fontPath); #generate text for the lid
+# place workplane in correct location                                               ---         TODO: Mirror this using the mirror-function
 text2 = cq.Workplane("XY").transformed(
     offset=cq.Vector(cut_text_position_x,cut_text_position_y, -box_wall_thickness / 2),
     rotate=cq.Vector(180,0, -cut_text_angle))\
-.text(cut_text, 10, box_wall_thickness/2, font=cut_font, fontPath=cut_fontPath) ; #generate text for the base
+.text(cut_text, 10, box_wall_thickness/2, font=cut_text_font, fontPath=cut_text_fontPath) ; #generate text for the base
 
 text_cut_volume = text.union(text2);
 if DEBUG_MODE: debug(text_cut_volume, name='text-cutting volume');
 
 # Generate the Spline-bezier cut and repepeat to creat lapping pannels              ---                     Creating lapping pannel Inverse-Geometary
-Cut_Volume = cq.Workplane("XY").workplane(-lapping_Thickness*2).center(Lapping_Offset,0)\
+Cut_Volume = cq.Workplane("XY").workplane(-lid_lapping_Thickness*2).center(Lid_Lapping_Offset,0)\
 .lineTo(Maximum_Size[0]/2, 0).spline(Bezier_Cut_Points,includeCurrent=True).lineTo(0,Maximum_Size[1]/2).close()\
-.extrude(lapping_Thickness);
+.extrude(lid_lapping_Thickness);
 
-Cut_Volume2 = cq.Workplane("XY").workplane(lapping_Thickness + box_total_width).center(Lapping_Offset,0)\
+Cut_Volume2 = cq.Workplane("XY").workplane(lid_lapping_Thickness + box_total_width).center(Lid_Lapping_Offset,0)\
 .lineTo(Maximum_Size[0]/2, 0).spline(Bezier_Cut_Points,includeCurrent=True).lineTo(0,Maximum_Size[1]/2).close()\
-.extrude(lapping_Thickness);
+.extrude(lid_lapping_Thickness);
 
-Cut_Volume3 = cq.Workplane("XY").workplane(-(lapping_Thickness + fit_tolerance_bike))\
+Cut_Volume3 = cq.Workplane("XY").workplane(-(lid_lapping_Thickness + fit_bike_excess))\
 .lineTo(Maximum_Size[0]/2, 0).spline(Bezier_Cut_Points,includeCurrent=True).lineTo(0,Maximum_Size[1]/2).close()\
-.extrude(box_total_width + lapping_Thickness * 3 + double_Fit_Tolerance);
+.extrude(box_total_width + lid_lapping_Thickness * 3 + fit_tolerance_doubled);
 
 Cut_Volume = Cut_Volume.union(Cut_Volume3).union(Cut_Volume2);
 
@@ -134,7 +152,7 @@ if DEBUG_MODE : debug(Cut_Volume, name='bezier-seperation volume');
 #Generate Inverse Geometary                                                         ---                     Creating opposite lapping pannel Inverse-Geometary
 Inverse_Cut_Volume = cq.Workplane("XY").workplane(-box_wall_thickness*2).center(Maximum_Size[0]/2,Maximum_Size[1]/2)\
 .rect(Maximum_Size[0], Maximum_Size[1], centered=True).extrude(Maximum_Size[2])\
-.cut(Cut_Volume.translate(cq.Vector(double_Fit_Tolerance,0,0)));
+.cut(Cut_Volume.translate(cq.Vector(fit_tolerance_doubled,0,0)));
 
 if DEBUG_MODE : debug(Inverse_Cut_Volume, name='inverse bezier-seperation volume');
 
@@ -147,7 +165,7 @@ for point in points_list:
 perimeter.close();
 
 # shrink the wire-loop to handle tolerance and wall box_wall_thickness
-casing_edge = perimeter.edges().offset2D(-(fit_tolerance_bike + box_wall_thickness))
+casing_edge = perimeter.edges().offset2D(-(fit_bike_excess + box_wall_thickness))
 # Extrude edge to make casing shape                                                 ---                     Casing Geometary Extrude
 casing_geometry = casing_edge.extrude(box_total_width);
 # fillet edges to make for nice-curved ends
@@ -163,8 +181,9 @@ casing_cable_cut = cq.Workplane("YZ").transformed(
     offset=Cable_hole_position,
     rotate=cq.Vector(0, Cable_hole_angle,0));
 # Create a cylinder to represent the material to be removed by the cut.
-casing_cable_cut = casing_cable_cut.circle(Cable_hole_diam/2).extrude(-50)
-if DEBUG_MODE : debug(casing_cable_cut, name='cable-hole cut volume');
+casing_cable_cut = casing_cable_cut.circle(Cable_hole_diam/2).extrude(-Cable_hole_Cut_Depth)
+#if DEBUG_MODE :
+debug(casing_cable_cut, name='cable-hole cut volume');
 # Subtract the resulting geometary.
 casing_geometry = casing_geometry.cut(casing_cable_cut);
 
