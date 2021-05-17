@@ -67,40 +67,37 @@ Bezier_Cut_Points = [
 # define per-step differences for screw-hole placement                              --- TODO: generate these according to generative geometary
 edge_difference_x = 60;
 rising_offset = [55, 26.5];
-rising_offset2 = [-9.5,-0.5]
+rising_offset2 = [-8.5,-1]
 falling_offset = [8,60];
-FirstRisingScrew = [93,34];
-FirstFallingScrew = [482,205];
 
 screw_placement_points = [
-    (450, 8), # Top Left Corner
+    (445, 8), # Top Left Corner
     (93, 34), # Top Right corner
-    (482, 205), # Bottom Left Corner
+    (482, 205)] # Bottom Left Corner
 
-    #Holes at 60mm intervals along top-edge
-    (400, 8),
-    (340, 8),
-    (280, 8),
-    (220, 8),
-    (160, 8),
-    (100, 8),
+#Holes along diagnal edges
+for risingpoints in range(1,8):
+    if risingpoints < 6:
+        screw_placement_points.append((\
+        screw_placement_points[1][0] + rising_offset[0] * risingpoints ,\
+        screw_placement_points[1][1] + rising_offset[1] * risingpoints));
+    else: #Second diagnal edge requires some tweaking.
+        screw_placement_points.append((\
+        (screw_placement_points[1][0] + rising_offset[0] * risingpoints) + rising_offset2[0] * (risingpoints-5)  ,\
+        (screw_placement_points[1][1] + rising_offset[1] * risingpoints) + rising_offset2[1] * (risingpoints-5) ));
 
-    #Holes along diagnal edges
-    (FirstRisingScrew[0] + rising_offset[0] , FirstRisingScrew[1] + rising_offset[1]),
-    (FirstRisingScrew[0] + rising_offset[0] * 2 , FirstRisingScrew[1] + rising_offset[1] * 2),
-    (FirstRisingScrew[0] + rising_offset[0] * 3, FirstRisingScrew[1] + rising_offset[1] * 3),
-    (FirstRisingScrew[0] + rising_offset[0] * 4 , FirstRisingScrew[1] + rising_offset[1] * 4),
-    (FirstRisingScrew[0] + rising_offset[0] * 5, FirstRisingScrew[1] + rising_offset[1] * 5),
+#Holes at 60mm intervals along top-edge
+for top_edge_points in range(1,7):
+    if top_edge_points != 6:
+        screw_placement_points.append((\
+        screw_placement_points[0][0] - (edge_difference_x * top_edge_points ), screw_placement_points[0][1]));
+    else:
+        screw_placement_points.append((\
+        screw_placement_points[0][0] - ((edge_difference_x - 2) * top_edge_points ), screw_placement_points[0][1]));
 
-    #Second diagnal edge requires some tweaking.
-    (FirstRisingScrew[0] + rising_offset2[0] + rising_offset[0] * 6 , FirstRisingScrew[1]  + rising_offset2[1] + rising_offset[1] * 6),
-    (FirstRisingScrew[0] + rising_offset2[0] * 2 + rising_offset[0] * 7 , FirstRisingScrew[1]  + rising_offset2[1] * 2 +rising_offset[1] * 7),
-
-    #rising edge has a slight angle
-    (FirstFallingScrew[0] - falling_offset[0] , FirstFallingScrew[1] - falling_offset[1]),
-    (FirstFallingScrew[0] - falling_offset[0]*2 , FirstFallingScrew[1] - falling_offset[1]*2),
-    (FirstFallingScrew[0] - falling_offset[0]*3 , FirstFallingScrew[1] - falling_offset[1]*3),
-];
+for fallingpoints in range(1,4):
+    screw_placement_points.append((\
+    screw_placement_points[2][0] - falling_offset[0] * fallingpoints , screw_placement_points[2][1] - falling_offset[1] * fallingpoints));
 
 # ---------- Generate Core Geometary -------------------------------------------    ---                     MESH GENERATION
 
@@ -139,6 +136,7 @@ Inverse_Cut_Volume = cq.Workplane("XY").workplane(-box_wall_thickness*2).center(
 .rect(Maximum_Size[0], Maximum_Size[1], centered=True).extrude(Maximum_Size[2])\
 .cut(Cut_Volume.translate(cq.Vector(double_Fit_Tolerance,0,0)));
 
+if DEBUG_MODE : debug(Inverse_Cut_Volume, name='inverse bezier-seperation volume');
 
 #initial workplane generation                                                       ---           ****** Casing Generation ******
 perimeter = cq.Workplane("XY");
@@ -171,6 +169,7 @@ if DEBUG_MODE : debug(casing_cable_cut, name='cable-hole cut volume');
 casing_geometry = casing_geometry.cut(casing_cable_cut);
 
 # In the top plate, cut holes for the screws to enter the casing through.           ---                     screw hole cutting
+#debug(casing_geometry.faces(">Z").workplane().pushPoints(screw_placement_points).circle(screw_thread_diam/2))
 casing_geometry =  casing_geometry.faces(">Z").workplane().pushPoints(screw_placement_points).circle(screw_thread_diam/2).cutBlind(-screw_depth + box_wall_thickness);
 # In the top plate, sink holes for the screw-heads to be recessed slighty.
 casing_geometry =  casing_geometry.faces(">Z").workplane().pushPoints(screw_placement_points).circle(screw_cap_diam/2).cutBlind(-screw_cap_height);
