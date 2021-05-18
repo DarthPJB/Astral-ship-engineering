@@ -8,6 +8,13 @@ from cadquery import exporters
 from cadquery import importers
 
 DEBUG_MODE = False;
+# Text to be placed on the box - note custom font use, should be in CQ's working path
+cut_text_position_x = 180;
+cut_text_position_y = 60;
+cut_text_angle = 24;
+cut_text = "Created By @Astral_3D";
+cut_text_font = "Trueno Bold";
+cut_text_fontPath = "truenobd.otf"
 
 ## ----------- Core variables --------------------------------------------------    ---                     Variable initialisation
 
@@ -35,36 +42,28 @@ screw_depth = 40 + box_wall_thickness;   # length of screw-fitting into the box 
 screw_cap_diam = 9 + fit_tolerance_doubled; # Size of screw-cap for recessed fitting
 screw_cap_height = 2 + fit_tolerance_casing; # Number of milimemeters to recess the screw-caps
 # define per-step differences for screw-hole placement                              --- TODO: generate these according to generative geometary
-screw_rising_offset = [55, 26.5];
-screw_rising_difference = [-8.5,-1]
+screw_rising_offset = [56.59558, 25.31681]; # this value should be effectively equal to screw_placement_distance (as a diagnal line)
+screw_rising_difference = [-4,3]
 screw_falling_offset = [8,screw_placement_distance];
-
-# Text to be placed on the box - note custom font use, should be in CQ's working path
-cut_text_position_x = 180;
-cut_text_position_y = 60;
-cut_text_angle = 24;
-cut_text = "Created By @Astral_3D";
-cut_text_font = "Trueno Bold";
-cut_text_fontPath = "truenobd.otf"
 
 
 ## Point lists for generating geometary                                         ---                     Point Lists
 
 # generate points list from the angle and length of the constraining edges (TODO: should import from svg)
-points_list = [
+distance_angle_points_list = [
 #first edge from 0,0 running along the top of the box.
-(463.6, 0),
+(487.26, 0),
 # second edge moving down the back of the bike-frame
 (250, 82.48),
 #edge up towards meeting the triangle
-(150.52, 82.48 + 127.04)];
+(150.52, 209.52)];
 
 screw_placement_points = [
-    (445, 8), # Top Left Corner
-    (93, 34), # Top Right corner
-    (482, 205)] # Bottom Left Corner
+    (distance_angle_points_list[0][0]-(box_corner_fillet) - fit_bike_excess, (box_corner_fillet/2)), # Top Left Corner
+    (98, 34), # Top Right corner
+    (505, 205)] # Bottom Left Corner
 
-newArray = screw_placement_points + points_list
+newArray = screw_placement_points + distance_angle_points_list
 
 ## calulate maximum enclosing area                                              ---                     Extents Calulations
 startx = 0
@@ -90,10 +89,6 @@ Cable_hole_position = cq.Vector((box_corner_fillet * 3) + box_wall_thickness, bo
 Cable_hole_angle = 0;
 Cable_hole_Cut_Depth = Maximum_Size[1]/4;
 
-
-
-
-
 #Holes along diagnal edges                                                          ---     Filling point lists with screw-placements
 for risingpoints in range(1,8):
     if risingpoints < 6:
@@ -107,12 +102,8 @@ for risingpoints in range(1,8):
 
 #Holes at 60mm intervals along top-edge
 for top_edge_points in range(1,7):
-    if top_edge_points != 6:
         screw_placement_points.append((\
         screw_placement_points[0][0] - (screw_placement_distance * top_edge_points ), screw_placement_points[0][1]));
-    else:
-        screw_placement_points.append((\
-        screw_placement_points[0][0] - ((screw_placement_distance - 2) * top_edge_points ), screw_placement_points[0][1]));
 
 for fallingpoints in range(1,4):
     screw_placement_points.append((\
@@ -124,7 +115,7 @@ for fallingpoints in range(1,4):
 text = cq.Workplane("XY").transformed(
     offset=cq.Vector(cut_text_position_x,cut_text_position_y, box_total_width + box_wall_thickness/2),
     rotate=cq.Vector(0,0,180 + cut_text_angle))\
-.text(cut_text, 10, box_wall_thickness/2, font=cut_text_font, fontPath=cut_text_fontPath); #generate text for the lid
+.text(cut_text, 10, box_wall_thickness/2, font=cut_text_font, fontPath=cut_text_fontPath);              #generate text for the lid
 # place workplane in correct location                                               ---         TODO: Mirror this using the mirror-function
 text2 = cq.Workplane("XY").transformed(
     offset=cq.Vector(cut_text_position_x,cut_text_position_y, -box_wall_thickness / 2),
@@ -161,7 +152,7 @@ if DEBUG_MODE : debug(Inverse_Cut_Volume, name='inverse bezier-seperation volume
 perimeter = cq.Workplane("XY");
 
 # Generate plane containing wire-loop                                               ---                     WIRE LOOP
-for point in points_list:
+for point in distance_angle_points_list:
     perimeter = perimeter.polarLine(point[0],point[1])
 perimeter.close();
 
