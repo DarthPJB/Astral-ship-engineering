@@ -4,6 +4,7 @@
 # on the amazing work of our team!
 
 import cadquery as cq
+import math as math
 from cadquery import exporters
 from cadquery import importers
 
@@ -27,20 +28,30 @@ Tip_Width = Track_Width + Tip_Width_Extra;
 
 ## --------------------------- code
 
-Track = cq.Workplane("XY").box(Tip_Length- Tip_Length/5, Track_Width, Track_Height)\
-    .faces("-Z or -X or +X").shell(Track_Steel_Width);
+Track = cq.Workplane("XY").center(-Tip_Length/5,0).box(Tip_Length - Tip_Length/5, Track_Width, Track_Height)\
+    .faces("-Z or -X or +X").shell(-Track_Steel_Width);
 
 # if DEBUG_MODE == True: debug(Track, name='Track');
-Tip_Block = cq.Workplane("XY").center(Tip_Length/5, 0)\
+
+
+Square_Side = Tip_Length / 2 -Tip_Length/5;
+
+ASquare = Square_Side * Square_Side;
+BSquare = Tip_Width * Tip_Width;
+CSide = math.sqrt(ASquare + BSquare);
+
+Tip_Cut_One = cq.Workplane("XY").workplane(Track_Height/2).center(Tip_Length/5, 0)\
+    .moveTo(0, Tip_Width/2 +1)\
+    .lineTo(0, -Tip_Width/2 - 1)\
+    .lineTo(Square_Side, - Tip_Width/2 - 1)\
+    .polarLine(Tip_Width + 10, 90 + Tip_Angle_One).close().extrude(-Track_Height);
+
+Tip_Cut_Box = cq.Workplane("XY").center(Tip_Length/2, 0).box(Tip_Length/2,Tip_Width,Track_Height).cut(Tip_Cut_One);
+#if DEBUG_MODE == True: debug(Tip_Cut_Box, name='Line Art');
+
+Tip_Block = cq.Workplane("XY").center(0, 0)\
     .box(Tip_Length, Tip_Width, Track_Height);
 
-Tip_Cut_One = cq.Workplane("XY").workplane(Track_Height/2).center(0, 0)\
-    .moveTo(Tip_Width, Track_Height)\
-    .lineTo(Tip_Width, - Track_Height) .lineTo(0, - Track_Height)\
-    .lineTo(0, Track_Height) .close()
-if DEBUG_MODE == True: debug(Tip_Cut_One, name='Line Art');
-
-
-
-Auto_Tip = Tip_Block.cut(Track);
-show_object(Auto_Tip, name='casing_left', options=dict(color='#cc3333'));
+Auto_Tip = Tip_Block.cut(Track).cut(Tip_Cut_Box);
+show_object(Auto_Tip, name='Printed_Tip', options=dict(color='#3333CC'));
+show_object(Track, name='Profile', options=dict(color='#333333'));
