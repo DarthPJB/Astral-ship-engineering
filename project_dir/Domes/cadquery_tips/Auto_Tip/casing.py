@@ -14,7 +14,7 @@ DEBUG_MODE = True;
 ## --------------------------- variables
 Track_Height = 18
 Track_Width = 45
-Track_Steel_Width = 2;
+Track_Steel_Width = 0.5;
 
 Tip_Length = 100;
 Tip_Width_Extra = 10;
