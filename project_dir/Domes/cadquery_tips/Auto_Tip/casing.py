@@ -18,6 +18,7 @@ Track_Steel_Width = 2;
 
 Tip_Length = 100;
 Tip_Width_Extra = 10;
+Tip_Height = Track_Height
 
 Tip_Angle_One = 12;
 Tip_Angle_Two = 28.4;
@@ -36,9 +37,6 @@ Track = cq.Workplane("XY").center(-Tip_Length/5,0).box(Tip_Length - Tip_Length/5
 
 Square_Side = Tip_Length / 2 -Tip_Length/5;
 
-ASquare = Square_Side * Square_Side;
-BSquare = Tip_Width * Tip_Width;
-CSide = math.sqrt(ASquare + BSquare);
 
 Tip_Cut_One = cq.Workplane("XY").workplane(Track_Height/2).center(Tip_Length/5, 0)\
     .moveTo(0, Tip_Width/2 +1)\
@@ -47,11 +45,16 @@ Tip_Cut_One = cq.Workplane("XY").workplane(Track_Height/2).center(Tip_Length/5, 
     .polarLine(Tip_Width + 10, 90 + Tip_Angle_One).close().extrude(-Track_Height);
 
 Tip_Cut_Box = cq.Workplane("XY").center(Tip_Length/2, 0).box(Tip_Length/2,Tip_Width,Track_Height).cut(Tip_Cut_One);
-#if DEBUG_MODE == True: debug(Tip_Cut_Box, name='Line Art');
+
+Tip_Cut_Two = Tip_Cut_Box.faces("<X").workplane().rect(Tip_Width,Tip_Height)
+if DEBUG_MODE == True: debug(Tip_Cut_Two, name='Line Art');
 
 Tip_Block = cq.Workplane("XY").center(0, 0)\
     .box(Tip_Length, Tip_Width, Track_Height);
 
 Auto_Tip = Tip_Block.cut(Track).cut(Tip_Cut_Box);
+
+
+
 show_object(Auto_Tip, name='Printed_Tip', options=dict(color='#3333CC'));
 show_object(Track, name='Profile', options=dict(color='#333333'));
