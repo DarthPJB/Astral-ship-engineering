@@ -170,7 +170,7 @@ module Workshop_Assembly(Cube_Size = 50, draw_beams = false)
 Workshop_Assembly(50, true);
 
 color([.5,.5,.5,.1])
-hull()
+//hull()
 {
     Workshop_Assembly();
 }
@@ -179,12 +179,10 @@ wall_height=7100; //Y
 wall_length=2300; //Z
 
 translate([-5500,-3540,-2000]){
-cube([wall_width,wall_height,wall_length]);
-    
-  
+//cube([wall_width,wall_height,wall_length]);  
 }
 
 translate([1000,-4400,-3000]){
 
-  #cube([1000,500,3000]);
+  //cube([1000,500,3000]);
 }

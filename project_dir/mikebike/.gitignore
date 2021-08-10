@@ -1,1 +1,5 @@
-88_assembly/output/*
+StructureFromMotion/
+*.blend1
+media/0*.png
+media/*.mp4
+*.slvs~
