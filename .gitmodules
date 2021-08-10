@@ -1,0 +1,3 @@
+[submodule "project_dir/Domes/cadquery_tips"]
+	path = project_dir/Domes/cadquery_tips
+	url = git@github.com:DarthPJB/Parametric_Dome_Tech.git
